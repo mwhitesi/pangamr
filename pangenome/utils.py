@@ -31,6 +31,7 @@ def read_panseq(file):
     df = df.apply(lambda s: s.astype("category"))
 
     pg = sp.sparse.coo_matrix((np.ones(df.shape[0]),(df.Genome.cat.codes, df.LocusID.cat.codes)),dtype=np.int8)
+    pg = pg.tocsr()
 
     return (pg,df.Genome.cat.categories,df.LocusID.cat.categories)
 
@@ -63,3 +64,5 @@ def read_amr(file, genomes):
         i=i+1
 
     return (values, subset.antibiotic.cat.categories)
+
+
