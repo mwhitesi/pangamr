@@ -14,3 +14,7 @@ PANSEQ = {
 PHENOTYPE = {
 	'amr_file': '/home/matt/workspace/l_amr/patric_tools/data/salmonella/amr.csv'
 }
+
+ANNOTATION = {
+	'blast_file': '/media/poolhouse/workspace/l_amr/data/PATRIC/salmonella/blast/parsed_pangenome_blast_report.txt'
+}

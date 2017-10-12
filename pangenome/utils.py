@@ -66,3 +66,23 @@ def read_amr(file, genomes):
     return (values, subset.antibiotic.cat.categories)
 
 
+def read_annot(file):
+    """Load BLAST hit annotations for pangenome regions
+
+    Args:
+        file (str): 3 column tab-delimited file: locus ID, match accession, match description
+     
+    Returns:
+        dataframe matrix
+
+
+    """
+
+    df = pd.read_table(file, dtype={'LocusID': str})
+
+    return df
+
+    
+
+
+
