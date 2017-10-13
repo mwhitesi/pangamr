@@ -9,6 +9,8 @@ Functions for running and evaluating ML classifiers
 from time import time
 from collections import defaultdict
 import numpy as np
+from scipy import stats
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.utils.extmath import density
 from sklearn.feature_selection import SelectFromModel
@@ -240,6 +242,145 @@ def summaryplot(results, logger=None):
         plt.setp(xlabels, rotation=90, fontsize=10)
 
     plt.show()
+
+
+def histplot(values_list, labels):
+    """Plot multiple histograms in same figure
+
+    Used to display feature importance distribution.
+    Individual histograms are stacked in figure.
+
+
+    """
+
+    n = len(values_list)
+
+    if n < 2:
+        raise Exception('Requires multiple value arrays')
+
+    fig, axes = plt.subplots(n, sharex=True)
+
+    # Find max
+    mxs = [ np.amax(x) for x in values_list ]
+    max_x = np.amax(mxs)
+
+    bin_seq = np.arange(0.0, max_x, max_x/20.0)
+
+    for i in range(n):
+        vals = values_list[i]
+        # Strip low importance features
+        vals = vals[vals > 0.01]
+        axes[i].hist(vals, bin_seq, histtype='bar')
+        axes[i].set_title(labels[i])
+
+    fig.tight_layout()
+    plt.show()
+
+
+def corrplot(df):
+    """Plot correlation between values df
+
+    Used to display correlation of feature importance across classifiers
+
+
+    """
+
+    corr = df.corr()
+    fig, ax = plt.subplots()
+    cax = ax.matshow(corr)
+    plt.xticks(range(len(corr.columns)), corr.columns)
+    plt.yticks(range(len(corr.columns)), corr.columns)
+
+    fig.colorbar(cax)
+    #fig.tight_layout()
+    plt.show()
+
+
+def heatplot(df):
+    """Plot importances of features as heatmap
+
+    Used to display feature importance across classifiers
+
+    """
+
+    # Drop zero rows
+    df = df[(df.T >= 0.0001).any()]
+
+    # Sort rows by values in 1st column
+    # Sort columns by correlation with first column
+    df = df.sort_values(by=[df.columns[0]])
+    df = df[np.argsort(df.corr()[:1].values)[0]]
+
+
+    fig, ax = plt.subplots()
+    cax = ax.imshow(df, cmap='hot', interpolation='nearest', aspect='auto')
+
+    plt.xticks(range(df.shape[1]), df.columns.values)
+
+    fig.colorbar(cax) 
+    plt.show()
+
+
+def bad_features(genome, importances, X, y, locus_index, genome_index):
+    """Identify high importance features that are likely causing misclassification 
+
+    Used to display feature importance across classifiers
+
+    """
+
+    # Get importances for all features for this genome
+    this_importances = importances.loc[(X[np.isin(genome_index, genome),:].toarray()[0] == 1)]
+
+    # Get top 50 features based on importance
+    top50 = (this_importances[np.argsort(this_importances)][::-1])[:50]
+    top50features = top50.index.tolist()
+
+    # For each top 50, get counts of feature in each phenotype
+    results = []
+    for f in top50features:
+        # The number of resistant/susceptible strains that have feature
+        (vals1, counts1) = np.unique(y[(X[:,locus_index == f] == 1).toarray()[:,0]], return_counts=True)
+
+        # The number resistant/susceptible strains that lack feature
+        (vals2, counts2) = np.unique(y[(X[:,locus_index == f] == 0).toarray()[:,0]], return_counts=True)
+
+        row = {
+            'feature': f,
+            'importance': top50[f]
+        }
+
+        if np.any(vals1 == 0):
+            row['susceptible_with'] = counts1[vals1 == 0][0]
+        else:
+            row['susceptible_with'] = 0
+
+        if np.any(vals1 == 1):
+            row['resistant_with'] = counts1[vals1 == 1][0]
+        else:
+            row['resistant_with'] = 0
+
+        if np.any(vals2 == 0):
+            row['susceptible_without'] = counts2[vals2 == 0][0]
+        else:
+            row['susceptible_without'] = 0
+
+        if np.any(vals2 == 1):
+            row['resistant_without'] = counts2[vals2 == 1][0]
+        else:
+            row['resistant_without'] = 0
+        
+
+        oddsratio, pvalue = stats.fisher_exact([[ row['susceptible_with'], row['resistant_with'] ],
+             [ row['susceptible_without'], row['resistant_without'] ]])
+        row['oddsratio'] = oddsratio
+        row['pvalue'] = pvalue
+
+        results.append(row)
+
+
+    return pd.DataFrame(results)
+
+
 
 
 
