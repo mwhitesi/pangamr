@@ -321,7 +321,7 @@ def heatplot(df):
     plt.show()
 
 
-def bad_features(genome, importances, X, y, locus_index, genome_index):
+def bad_features(genome, importances, X, y, locus_index, genome_index, features=None):
     """Identify high importance features that are likely causing misclassification 
 
     Used to display feature importance across classifiers
@@ -329,15 +329,19 @@ def bad_features(genome, importances, X, y, locus_index, genome_index):
     """
 
     # Get importances for all features for this genome
-    this_importances = importances.loc[(X[np.isin(genome_index, genome),:].toarray()[0] == 1)]
-
-    # Get top 50 features based on importance
-    top50 = (this_importances[np.argsort(this_importances)][::-1])[:50]
-    top50features = top50.index.tolist()
+    if features:
+        this_importances = importances[features]
+        if isinstance(features,str):
+            features = [features]
+    else:
+        # Get top 50 features based on importance
+        this_importances = importances.loc[(X[np.isin(genome_index, genome),:].toarray()[0] == 1)]
+        top50 = (this_importances[np.argsort(this_importances)][::-1])[:50]
+        features = top50.index.tolist()
 
     # For each top 50, get counts of feature in each phenotype
     results = []
-    for f in top50features:
+    for f in features:
         # The number of resistant/susceptible strains that have feature
         (vals1, counts1) = np.unique(y[(X[:,locus_index == f] == 1).toarray()[:,0]], return_counts=True)
 
@@ -346,7 +350,7 @@ def bad_features(genome, importances, X, y, locus_index, genome_index):
 
         row = {
             'feature': f,
-            'importance': top50[f]
+            'importance': this_importances[f]
         }
 
         if np.any(vals1 == 0):
