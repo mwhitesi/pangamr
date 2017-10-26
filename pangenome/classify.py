@@ -385,6 +385,38 @@ def bad_features(genome, importances, X, y, locus_index, genome_index, features=
     return pd.DataFrame(results)
 
 
+def proximity_matrix(rf, X):
+    """Random forest proximity matrix
+
+    Returns:
+        np matrix where distances are the proportion of
+        leaf nodes that two samples are assigned to per tree
+
+    """
+
+    ntrees = len(rf.estimators_)
+    leaves = rf.apply(X)
+    N=leaves.shape[0]
+    I,J = np.ogrid[0:N,0:N]
+    M = (leaves[I] == leaves[J])
+    D = 1.0 - np.sum(M, 2)/ntrees
+
+    return D
+
+def round(clf, X_train, y_train, X_test, y_test, sample_names):
+    """Run single round of classification
+
+    Collect and store performance statistics and useful properties of results
+
+    """
+
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test.toarray())
+    report = classification_report(y_test, y_pred)
+
+
+
+
 
 
 
