@@ -1,7 +1,7 @@
-PanseqTrees Module Repository
+PanseqGrid Module Repository
 ========================
 
-Project for building and displaying phylogenetic trees for loci output by Panseq
+Project for running Panseq with all combinations of defined parameters
 
 ---------------
 

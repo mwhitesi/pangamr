@@ -403,7 +403,7 @@ def proximity_matrix(rf, X):
 
     return D
 
-def round(clf, X_train, y_train, X_test, y_test, sample_names):
+def collect_metrics(clf, X_train, y_train, X_test, y_test, sample_names):
     """Run single round of classification
 
     Collect and store performance statistics and useful properties of results
@@ -412,7 +412,44 @@ def round(clf, X_train, y_train, X_test, y_test, sample_names):
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test.toarray())
-    report = classification_report(y_test, y_pred)
+    scores = metrics.precision_recall_fscore_support(y_test, y_pred)
+
+    print(scores)
+
+    return(scores)
+
+
+def run_cv(clf, X, y, sample_names, seed=21559873):
+    """Run 5-fold cross validation, iterating over each fraction,
+        repeating each cross-validation experiment 10 times
+
+    """
+
+    kfolds_iter = RepeatedKFold(n_splits=5, n_repeats=10, random_state=seed)
+
+    i = 0
+    results = []
+    for train_indices, test_indices in kfolds_iter.split(X):
+
+        X_train = X[ train_indices ]
+        y_train = y[ train_indices ]
+        X_test = X[ test_indices ]
+        y_test = y[ test_indices ]
+
+        results.append(collect_metrics(clf, X_train, y_train, X_test, y_test, None))
+
+
+
+
+
+
+
+        
+
+
+
+
+    
 
 
 

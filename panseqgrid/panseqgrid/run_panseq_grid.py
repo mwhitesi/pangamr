@@ -21,8 +21,9 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import argparse
 import logging
+import subprocess
 
-from panseqgrid.config import Config, Runner
+from panseqgrid.config import Config
 
 __author__ = "Matthew Whiteside"
 __copyright__ = "Copyright 2015, Public Health Agency of Canada"
@@ -32,6 +33,17 @@ __maintainer__ = "Matthew Whiteside"
 __email__ = "matthew.whiteside@phac-aspc.gc.ca"
 
 logger = None
+
+def runner(configfile):
+    """Run panseq
+
+    Args:
+        configfile(str): Location of panseq config file
+
+    """
+
+    subprocess.call(["panseq", configfile])
+
 
 if __name__ == "__main__":
     """Build tree image
@@ -48,14 +60,19 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     params = {
-        'percentIdentityCutoff': [],
-        'fragmentSize': []
+        'percentIdentityCutoff': [90,95],
+        'fragmentationSize': [1000,500],
+        'coreGenomeThreshold': [180]
     }
     conf = Config(options.input, params)
-    #runner = Runner()
 
-    # for c in conf.range():
-    #     runner.run(c)
+    for c in conf.range():
+        f = conf.write(c)
+        logger.info("\n\n***Running panseq with config:\n{}\nFile: {}\n".format(c, f))
+        runner(f)
+        logger.info("\n\t...complete.\n")
+        os.remove(f)
+
 
    
    

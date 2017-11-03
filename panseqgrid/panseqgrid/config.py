@@ -5,7 +5,9 @@
 
 """
 
+import os
 import pandas as pd
+import tempfile
 from itertools import product
 
 __author__ = "Matthew Whiteside"
@@ -34,9 +36,21 @@ class Config(object):
            
         """
 
+        self._valid = ['percentIdentityCutoff', 'fragmentationSize', 'coreGenomeThreshold']
+        self._tracking_parameters = { 'fragmentationSize': 'minimumNovelRegionSize' }
+
         self._load(base_config_file)
 
-        #self._permute()
+        # Create root directory if it does not exist
+        if not self._conf['baseDirectory']:
+            raise ValueError('Missing parameter: baseDirectory')
+        else:
+            if not os.path.exists(self._conf['baseDirectory']):
+                os.makedirs(self._conf['baseDirectory'])
+
+            self._base_directory = self._conf['baseDirectory']
+
+        self._permute(permutations)
 
 
     def _load(self, base_config_file):
@@ -47,7 +61,11 @@ class Config(object):
 
         """
 
-        self.conf = pd.read_table(base_config_file, header=None, names=['param','value'], index_col=0, dtype={'param': str, 'value': str})
+        tmp = pd.read_table(base_config_file, header=None, names=['param','value'], 
+            index_col=0, dtype={'param': str, 'value': str}).to_dict()
+
+        self._conf = tmp['value']
+
 
     def _permute(self, permutations):
         """Create config combinations 
@@ -59,11 +77,27 @@ class Config(object):
            
         """
 
-        self._combinations = [dict(zip(permutations, v)) for v in product(*permutations.values())]
+        ok, bad_param = self._permutable(permutations)
+        if ok:
+            self._combinations = [dict(zip(permutations, v)) for v in product(*permutations.values())]
 
-        # Add unique file names
+            for c in self._combinations:
+                # Add unique base name
+                param_string = ''
+                param_string = '__'.join(['{}{}'.format(k,v) for k,v in c.items() ])
+                filename = os.path.join(self._base_directory, param_string)
 
-        # Add coordinated configs
+                c['baseDirectory'] = filename
+
+                # Some parameters need to be set to same value
+                for p in self._tracking_parameters:
+                    if p in c:
+                        c[self._tracking_parameters[p]] = c[p]
+
+        else:
+            raise ValueError('{} parameter cannot be permuted'.format(bad_param))
+
+
 
     def _permutable(self, permutations):
         """Check requested permute keywords
@@ -76,39 +110,56 @@ class Config(object):
            
         """
 
-    
-        
-class Runner(object):
-    """Generates Panseq config files
+        for p in permutations:
+            if not p in self._valid:
+                return (False, p)
 
-    Creates new Panseq config files for every combination of
-    permuted value inserted into the base config file
+        return (True, None)
 
 
-    """
+    def range(self):
+        """Config generator
 
-    def __init__(self, base_config_file, permutations):
-        """Constructor
+        Iterates over all config dictionaries in self._combinations
 
-        Args:
-            base_config_file(str): Panseq config file with default values
-            permutations(dict): dictionary of Panseq config keywords pointing to lists of config values
+        Returns:
+            dictionary
            
         """
 
-        self._load(base_config_file)
+        newconfig = { k: v for k,v in self._conf.items() }
+        for c in self._combinations:
+           
+            for k,v in c.items():
+                newconfig[k] = v
 
-        self._permute()
+            yield newconfig
 
 
-    def _load(self, base_config_file):
-        """Load default config values from file
+    def write(self, conf, filename=None):
+        """Save config dictionary to file
+
+        User is responsible for deleting file
 
         Args:
-            base_config_file(str): Panseq config file with default values
+            conf(dict): Panseq config dictionary
+            filename[OPTIONAL](str): File location to write to. If not provided a temporary file will
+                be generated and returned.
 
+        Returns:
+            filename(str)
+           
         """
 
-        pd.read
+        if not filename:
+            fh = tempfile.NamedTemporaryFile(delete=False)
+            filename = fh.name
+            fh.close()
 
+        with open(filename, mode='w') as outfh:
+            for k, v in conf.items():
+                outfh.write("{}\t{}\n".format(k,v))
+
+        return filename
     
+        
