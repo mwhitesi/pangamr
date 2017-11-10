@@ -33,4 +33,13 @@ SH = {
 	'fox_rfc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/fox_rfc.jpkl',
 	'fox_gbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/fox_gbc.jpkl',
 	'fox_xbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/fox_xbc.jpkl',
+	'str_rfc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/str_rfc.jpkl',
+	'str_gbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/str_gbc.jpkl',
+	'str_xbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/str_xbc.jpkl',
+	'sox_rfc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/sox_rfc.jpkl',
+	'sox_gbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/sox_gbc.jpkl',
+	'sox_xbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/sox_xbc.jpkl',
+	'tcy_rfc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/tcy_rfc.jpkl',
+	'tcy_gbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/tcy_gbc.jpkl',
+	'tcy_xbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/tcy_xbc.jpkl',
 }
