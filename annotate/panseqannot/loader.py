@@ -31,24 +31,38 @@ def load_rgi(options):
     pa = PanseqAnnot(options.db)
 
     for idx, row in df.iterrows():
-        contig = row['ORF_ID']
+        name = row['ORF_ID']
         start = int(row['START'])
         stop = int(row['STOP'])
         annotation_string = row.to_json()
 
-        # Why would you modify the fasta ID
-        contig = re.sub(r'_\d+$', '', contig)
-
-        print(pa.get_loci_by_location(contig, start, stop))
-
-
+        m = re.search(r'^(?P<contig>.+)_\((?P<begin>\d+)\.\.(?P<end>\d+)\)_\d+$|^(?P<contigonly>.+)_\d+$', 
+            str(name))
+        if m:
+            contig, begin, end, contigonly = m.groups()
+            logger.info("Loaded HIT: {}, {}-{}".format(name, start, stop))
+            if contigonly:
+                fragments = pa.load_annotation(annotation_string, 'rgi', contigonly, start, stop)
+                logger.info("\tmapped to {} fragments.".format(len(fragments)))
+                for f in fragments:
+                    logger.debug("\t\t{}".format(str(f)))
+            else:
+                relpos = int(begin)
+                fragments = pa.load_annotation(annotation_string, 'rgi', contig, start+relpos, stop+relpos)
+                logger.info("\tmapped to {} fragments.".format(len(fragments)))
+                for f in fragments:
+                   logger.debug("\t\t{}".format(str(f)))
+                    
+        else:
+            raise Exception("Invalid ORF ID: {}".format(name))
+        
 
 if __name__ == "__main__":
     """Run various programs
 
     """
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('annotate.annot')
 
     # Parse command-line args

@@ -160,10 +160,8 @@ class PanseqAnnot(object):
 
         c = self._dbconn.cursor()
 
-        print("LOOKING for: {}, {}, {}".format(contig, start, end))
-
         c.execute("""
-            SELECT locus_id, st, en 
+            SELECT locus_id, st, en  
             FROM fragment 
             WHERE contig = ? AND 
                 st <= ? AND en >= ?
@@ -174,20 +172,59 @@ class PanseqAnnot(object):
         for row in c:
 
             if row[1] <= start:
-                st = start - row[1]
+                st = start - row[1] + 1
             else:
-                st = 0
+                st = 1
             if row[2] >= end:
-                en = row[2] - end
+                en = end - row[1] + 1
             else:
-                en = row[2] - row[1]
-            ln = en-st
-            ln = ln + 0.0
-            full_ln = row[1]-row[0]
+                en = row[2] - row[1] + 1
 
-            results.append([row[0], st, en, en-st, ln/full_ln])
+            ln = en - st + 1.0
+            full_ln = row[2] - row[1] + 1
+        
+            results.append([row[0], st, en, ln, ln/full_ln])
 
         return results
+
+
+    def load_annotation(self, annotation, annot_type, contig, start, end):
+        """Insert genome region annotation and link to overlapping
+        fragments in fragment_annotation table
+
+        Args:
+            annotation(str): Annotation assignment in text format (often JSON)
+            annot_type(str): resfams|rgi|resfinder
+            contig(str): Contig ID
+            start(int): Start position of region
+            end(int): End position of region
+
+        Returns:
+            List of fragment annotations
+        
+        """
+
+        # Insert annotation
+        c = self._dbconn.cursor()
+        ln = end-start+1
+        c.execute('INSERT INTO annotation (type, description, contig, st, en, ln) VALUES (?, ?, ?, ?, ?, ?)', 
+            [annot_type, annotation, contig, start, end, ln])
+        annotation_id = c.lastrowid
+
+        # Retrieve fragments that overlap
+        overlapping_fragments = self.get_loci_by_location(contig, start, end)
+        for row in overlapping_fragments:
+            row.append(annotation_id)
+
+        # Link annotation to fragments
+        c.executemany("""
+            INSERT INTO fragment_annotation ('locus_id','st', 'en', 'ln', 'coverage', 'annotation_id')
+            VALUES (?,?,?,?,?,?)
+            """, overlapping_fragments)
+
+        self._dbconn.commit()
+
+        return overlapping_fragments
 
 
     def size(self):
@@ -197,8 +234,6 @@ class PanseqAnnot(object):
             ''')
 
         return c.fetchone()[0]
-        
-
 
 
 if __name__ == "__main__":
