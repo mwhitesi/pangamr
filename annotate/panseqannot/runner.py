@@ -30,9 +30,14 @@ def run_resfinder(options):
     """Run Blast with resfinder sequence DB
 
     """
-    subprocess.check_output(['blastn','-query', options.input,
+    cmd = ['blastn','-query', options.input,
         '-db', config['resfinder_blastdb'], '-out', options.output,
-        '-evalue', '0.0001', '-outfmt', '6', '-perc_identity', '90'])
+        '-evalue', '0.0001', '-outfmt', 
+        "7 qseqid sseqid pident length qstart qend qlen sstart send slen evalue bitscore",
+        '-perc_identity', '90']
+    logger.info("Running: {}".format(subprocess.list2cmdline(cmd)))
+
+    subprocess.check_output(cmd)
 
 
 def run_rgi(options):
