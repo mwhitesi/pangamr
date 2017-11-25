@@ -20,6 +20,7 @@ import os
 import pandas
 import re
 import sqlite3
+from collections import defaultdict
 
 logger = None
 
@@ -225,6 +226,44 @@ class PanseqAnnot(object):
         self._dbconn.commit()
 
         return overlapping_fragments
+
+
+    def get_annotations(self, locus_id, annot_type=None):
+        """Retrieve annotations for a locus ID
+
+        Args:
+            locus_id(str): Fragment locus_id
+            annot_type(str)[OPTIONAL]: resfams|rgi|resfinder
+        
+        Returns:
+            Returns dictionary of lists, one per requested annotation
+            type. If annot_type is None, all annotation types are returned
+
+            Empty dictionary is returned for fragments with no fragments
+        
+        """
+
+        c = self._dbconn.cursor()
+        bindings = [locus_id]
+        query = """
+            SELECT a.type, a.description
+            FROM annotation a, fragment_annotation f
+            WHERE a.annotation_id = f.annotation_id AND
+              f.locus_id = ?
+            """
+        if annot_type:
+            if annot_type != 'rgi' and annot_type != 'resfinder' and annot_type != 'resfams':
+                raise Exception('Invalid annot_type parameter: {}'.format(annot_type))
+            query = query + ' AND a.type = ?'
+            bindings.append(annot_type)
+
+        c.execute(query, bindings)
+        
+        results = defaultdict(list)
+        for r in c:
+            results[r[0]].append(r[1])
+
+        return results
 
 
     def size(self):

@@ -10,6 +10,10 @@ import pandas as pd
 import scipy as sp
 import numpy as np
 import re
+import collections
+from sklearn.externals import joblib
+
+import config
 
 def read_panseq(file):
     """Load panseq pangenome file into scipy sparse matrix
@@ -82,7 +86,53 @@ def read_annot(file):
 
     return df
 
+
+SalmonellaSet = collections.namedtuple('SalmonellaSet', ['X_train', 'y_train', 'X_test', 'y_test', 'locus_index', 'serovar_index'])
+
+def load_salmonella_data(serovars=None):
+    """Load pangenome and amr data for some/all salmonella species
+
+    Args:
+        file (str): 3 column tab-delimited file: locus ID, match accession, match description
+     
+    Returns:
+        SalmonellaSet namedtuple with attributes:
+            X_train
+            X_test
+            y_train
+            y_test
+            locus_index
+            serovar_index
+
+    """
     
+    amr_df = joblib.load(config.S['amr'])
+    test_train_index = joblib.load(config.S['test_train_index'])
+    serovar_index = joblib.load(config.S['serovar_index'])
+    pg = joblib.load(config.S['pg'])
+    locus_index = joblib.load(config.S['locus_index'])
+
+    if serovars and len(serovars):
+        filtered_rows = np.in1d(serovar_index, serovars)
+        final_amr_df = amr_df.iloc[filtered_rows,:]
+        final_test_train_index = test_train_index[filtered_rows]
+        final_serovar_index = serovar_index[filtered_rows]
+        final_pg = pg[filtered_rows,:]
+    else:
+        final_amr_df = amr_df
+        final_test_train_index = test_train_index
+        final_serovar_index = serovar_index        
+        final_pg = pg
+
+    training_rows = np.array(final_test_train_index == 'Training')
+    X_train = final_pg[training_rows,:]
+    X_test = final_pg[~training_rows,:]
+    y_train = final_amr_df.iloc[training_rows,:]
+    y_test = final_amr_df.iloc[~training_rows,:]
+
+    return SalmonellaSet(X_train,y_train,X_test,y_test,locus_index,final_serovar_index)
+
+
 
 
 

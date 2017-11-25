@@ -43,3 +43,21 @@ SH = {
 	'tcy_gbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/tcy_gbc.jpkl',
 	'tcy_xbc': '/media/poolhouse/workspace/l_amr/data/NML/heidelburg_james/ml/tcy_xbc.jpkl',
 }
+
+S = {
+	'amr': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/amr.jpkl',
+	'serovar_index': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/sample_index.jpkl',
+	'test_train_index': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/test_train_index.jpkl',
+	'locus_index': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/locus_index.jpkl',
+	'pg': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/pg.jpkl',
+	'amp_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/amp_rfc.jpkl',
+	'amp_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/amp_xbc.jpkl',
+	'fox_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/fox_rfc.jpkl',
+	'fox_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/fox_xbc.jpkl',
+	'str_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/str_rfc.jpkl',
+	'str_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/str_xbc.jpkl',
+	'sox_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/sox_rfc.jpkl',
+	'sox_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/sox_xbc.jpkl',
+	'tcy_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/tcy_rfc.jpkl',
+	'tcy_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/tcy_xbc.jpkl',
+}

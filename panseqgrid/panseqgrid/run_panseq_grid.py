@@ -61,8 +61,7 @@ if __name__ == "__main__":
 
     params = {
         'percentIdentityCutoff': [90,95],
-        'fragmentationSize': [1000,500],
-        'coreGenomeThreshold': [180]
+        'fragmentationSize': [1000,500]
     }
     conf = Config(options.input, params)
 

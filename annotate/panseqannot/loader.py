@@ -61,17 +61,17 @@ def load_resfams(options):
             if m:
                 contig, begin, end, contigonly = m.groups()
                 logger.info("Loaded HIT: {}, {}-{}".format(name, start, stop))
-                # if contigonly:
-                #     fragments = pa.load_annotation(annotation_string, 'rgi', contigonly, start, stop)
-                #     logger.info("\tmapped to {} fragments.".format(len(fragments)))
-                #     for f in fragments:
-                #         logger.debug("\t\t{}".format(str(f)))
-                # else:
-                #     relpos = int(begin)
-                #     fragments = pa.load_annotation(annotation_string, 'rgi', contig, start+relpos, stop+relpos)
-                #     logger.info("\tmapped to {} fragments.".format(len(fragments)))
-                #     for f in fragments:
-                #        logger.debug("\t\t{}".format(str(f)))
+                if contigonly:
+                    fragments = pa.load_annotation(annotation_string, 'resfams', contigonly, start, stop)
+                    logger.info("\tmapped to {} fragments.".format(len(fragments)))
+                    for f in fragments:
+                        logger.debug("\t\t{}".format(str(f)))
+                else:
+                    relpos = int(begin)
+                    fragments = pa.load_annotation(annotation_string, 'resfams', contig, start+relpos, stop+relpos)
+                    logger.info("\tmapped to {} fragments.".format(len(fragments)))
+                    for f in fragments:
+                       logger.debug("\t\t{}".format(str(f)))
             else:
                 raise Exception("Invalid contig name: {}".format(name))
                     
@@ -132,19 +132,19 @@ def load_resfinder(options):
             contig, begin, end, contigonly = m.groups()
             logger.info("Loaded HIT: {}, {}-{}".format(name, start, stop))
             if contigonly:
-                fragments = pa.load_annotation(annotation_string, 'rgi', contigonly, start, stop)
+                fragments = pa.load_annotation(annotation_string, 'resfinder', contigonly, start, stop)
                 logger.info("\tmapped to {} fragments.".format(len(fragments)))
                 for f in fragments:
                     logger.debug("\t\t{}".format(str(f)))
             else:
                 relpos = int(begin)
-                fragments = pa.load_annotation(annotation_string, 'rgi', contig, start+relpos, stop+relpos)
+                fragments = pa.load_annotation(annotation_string, 'resfinder', contig, start+relpos, stop+relpos)
                 logger.info("\tmapped to {} fragments.".format(len(fragments)))
                 for f in fragments:
                    logger.debug("\t\t{}".format(str(f)))
                     
         else:
-            raise Exception("Invalid ORF ID: {}".format(name))
+            raise Exception("Invalid contig name: {}".format(name))
 
 
 def locad(contig, start, stop):
