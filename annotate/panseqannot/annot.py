@@ -243,8 +243,10 @@ class PanseqAnnot(object):
         
         """
 
+
+
         c = self._dbconn.cursor()
-        bindings = [locus_id]
+        bindings = [int(locus_id)]
         query = """
             SELECT a.type, a.description
             FROM annotation a, fragment_annotation f

@@ -60,4 +60,5 @@ S = {
 	'sox_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/sox_xbc.jpkl',
 	'tcy_rfc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/tcy_rfc.jpkl',
 	'tcy_xbc': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/ml/tcy_xbc.jpkl',
+	'panseqdir': '/media/poolhouse/workspace/l_amr/data/NML/salmonella_superset/panseq/percentIdentityCutoff90__fragmentationSize1000/'
 }
